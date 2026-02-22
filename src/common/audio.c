@@ -99,7 +99,7 @@ int audio_init(audio_handle_t* handle, struct audio_config_t const* config)
 
     logger_log(LOG_INFO, "%s: config is direction %s, backend %s, device %s, buffer size %d",
         __func__, (config->direction == AUDIO_IN) ? "in" : "out", config->backend_name, config->device_name, config->buffer_size);
-    
+
     ret = audio_backend_get_by_name(config->backend_name, &((*handle)->backend));
     if (ret != 0)
     {
@@ -174,7 +174,8 @@ int audio_set_stream_config(audio_handle_t handle, struct stream_config_t const*
     handle->stream = *config;
     get_device_config(handle, &device_config);
 
-    ret = handle->backend->open(handle->backend, handle->config.device_name, handle->config.direction, handle->config.buffer_size, &device_config);
+    ret = handle->backend->open(handle->backend, handle->config.device_name, handle->config.application_name,
+                                handle->config.direction, handle->config.buffer_size, &device_config);
     if (ret < 0)
     {
         memset(&handle->stream, 0, sizeof(handle->stream));
@@ -263,7 +264,7 @@ int audio_read(audio_handle_t handle, char* buffer, size_t size)
         logger_log(LOG_ERROR, "%s: backend read failed", __func__);
         return ret;
     }
-    
+
     size = ret;
 
     ret = audio_map_channels(handle, buffer, size, 1);
@@ -317,7 +318,7 @@ int audio_map_channels(audio_handle_t handle, char* buffer, size_t size, char re
             }
         }
     }
-    
+
     return ret;
 }
 

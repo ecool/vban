@@ -34,7 +34,8 @@ struct file_backend_t
     int	fd;
 };
 
-static int file_open(audio_backend_handle_t handle, char const* output_name, enum audio_direction direction, size_t buffer_size, struct stream_config_t const* config);
+static int file_open(audio_backend_handle_t handle, const char* output_name, const char* application_name,
+                     enum audio_direction direction, size_t buffer_size, const struct stream_config_t* config);
 static int file_close(audio_backend_handle_t handle);
 static int file_write(audio_backend_handle_t handle, char const* data, size_t size);
 static int file_read(audio_backend_handle_t handle, char* data, size_t size);
@@ -64,10 +65,11 @@ int file_backend_init(audio_backend_handle_t* handle)
     *handle = (audio_backend_handle_t)file_backend;
 
     return 0;
-    
+
 }
 
-int file_open(audio_backend_handle_t handle, char const* output_name, enum audio_direction direction, size_t buffer_size, struct stream_config_t const* config)
+int file_open(audio_backend_handle_t handle, const char* output_name, const char* application_name,
+              enum audio_direction direction, size_t buffer_size, const struct stream_config_t* config)
 {
     struct file_backend_t* const file_backend = (struct file_backend_t*)handle;
 
@@ -80,16 +82,16 @@ int file_open(audio_backend_handle_t handle, char const* output_name, enum audio
     if(strcmp("", output_name))
         file_backend->fd = open(output_name, (direction == AUDIO_OUT) ? (O_CREAT|O_WRONLY|O_TRUNC) : O_RDONLY, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP);
     else
-        file_backend->fd = STDOUT_FILENO; 
+        file_backend->fd = STDOUT_FILENO;
 
-        
+
     if (file_backend->fd == -1)
     {
         logger_log(LOG_FATAL, "%s: open error", __func__); //
 	perror("open");
         return -errno;
     }
-    
+
     return 0;
 }
 
@@ -112,7 +114,7 @@ int file_close(audio_backend_handle_t handle)
 
     if (file_backend->fd != STDOUT_FILENO)
         ret = close(file_backend->fd);
-        
+
     return ret;
 }
 

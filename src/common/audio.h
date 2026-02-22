@@ -68,6 +68,7 @@ struct audio_config_t
     enum audio_direction            direction;
     char                            backend_name[AUDIO_BACKEND_NAME_SIZE];
     char                            device_name[AUDIO_DEVICE_NAME_SIZE];
+    char application_name[AUDIO_DEVICE_NAME_SIZE];
     size_t                          buffer_size;
 };
 
@@ -94,7 +95,7 @@ int audio_release(audio_handle_t* handle);
 
 /**
  * Set the stream configuration.
- * The stream configuration is what comes from vban, before the channel map, or what comes from audio 
+ * The stream configuration is what comes from vban, before the channel map, or what comes from audio
  * before the channel map, depending on the direction used.
  * @param handle object handle
  * @param config stream configuration to use
@@ -104,7 +105,7 @@ int audio_set_stream_config(audio_handle_t handle, struct stream_config_t const*
 
 /**
  * Get the current stream configuration
- * The stream configuration is what comes from vban, before the channel map, or what comes from audio 
+ * The stream configuration is what comes from vban, before the channel map, or what comes from audio
  * before the channel map, depending on the direction used.
  * @param handle object handle
  * @param config stream configuration to fill
@@ -132,7 +133,7 @@ int audio_write(audio_handle_t handle, char const* buffer, size_t size);
 /**
  * Read data dwifrom to audio
  * @param handle object handle
- * @param buffer data to read to 
+ * @param buffer data to read to
  * @param size size of the data to read
  * @return size read upon success, negative value otherwise
  */

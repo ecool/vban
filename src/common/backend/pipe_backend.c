@@ -23,7 +23,8 @@ struct pipe_backend_t
     int fd;
 };
 
-static int pipe_open(audio_backend_handle_t handle, char const* output_name, enum audio_direction direction, size_t buffer_size, struct stream_config_t const* config);
+static int pipe_open(audio_backend_handle_t handle, const char* output_name, const char* application_name,
+                     enum audio_direction direction, size_t buffer_size, const struct stream_config_t* config);
 static int pipe_close(audio_backend_handle_t handle);
 static int pipe_write(audio_backend_handle_t handle, char const* data, size_t size);
 static int pipe_read(audio_backend_handle_t handle, char* data, size_t size);
@@ -56,7 +57,8 @@ int pipe_backend_init(audio_backend_handle_t* handle)
 
 }
 
-int pipe_open(audio_backend_handle_t handle, char const* output_name, enum audio_direction direction, size_t buffer_size, struct stream_config_t const* config)
+int pipe_open(audio_backend_handle_t handle, const char* output_name, const char* application_name,
+              enum audio_direction direction, size_t buffer_size, const struct stream_config_t* config)
 {
     int ret;
     struct pipe_backend_t* const pipe_backend = (struct pipe_backend_t*)handle;

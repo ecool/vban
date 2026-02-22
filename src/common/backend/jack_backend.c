@@ -21,7 +21,8 @@ struct jack_backend_t
     int                     active;
 };
 
-static int jack_open(audio_backend_handle_t handle, char const* output_name, enum audio_direction direction, size_t buffer_size, struct stream_config_t const* config);
+static int jack_open(audio_backend_handle_t handle, const char* output_name, const char* application_name,
+                     enum audio_direction direction, size_t buffer_size, const struct stream_config_t* config);
 static int jack_close(audio_backend_handle_t handle);
 static int jack_write(audio_backend_handle_t handle, char const* data, size_t nb_sample);
 
@@ -115,7 +116,8 @@ int jack_backend_init(audio_backend_handle_t* handle)
     return 0;
 }
 
-int jack_open(audio_backend_handle_t handle, char const* output_name, enum audio_direction direction, size_t buffer_size, struct stream_config_t const* config)
+int jack_open(audio_backend_handle_t handle, const char* output_name, const char* application_name,
+              enum audio_direction direction, size_t buffer_size, const struct stream_config_t* config)
 {
     int ret;
     struct jack_backend_t* const jack_backend = (struct jack_backend_t*)handle;
@@ -237,7 +239,7 @@ int jack_write(audio_backend_handle_t handle, char const* data, size_t size)
         logger_log(LOG_WARNING, "%s: short write", __func__);
         return 0;
     }
-    
+
     jack_ringbuffer_write(jack_backend->ring_buffer, data, size);
 
     return (ret < 0) ? ret : size;

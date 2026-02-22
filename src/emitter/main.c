@@ -62,7 +62,7 @@ void usage()
     printf("-n, --nbchannels=VALUE  : Audio device number of channels. default 2\n");
     printf("-f, --format=VALUE      : Audio device sample format (see below). default is 16I (16bits integer)\n");
     printf("-c, --channels=LIST     : channels from the audio device to use. LIST is of form x,y,z,... default is to forward the stream as it is\n");
-
+    printf("-a, --appname=NAME      : Application name (for pulseaudio/pipewire node name). default is 'vban'\n");
     printf("-l, --loglevel=LEVEL    : Log level, from 0 (FATAL) to 4 (DEBUG). default is 1 (ERROR)\n");
     printf("-h, --help              : display this message\n\n");
     printf("%s\n\n", stream_bit_fmt_help());
@@ -84,6 +84,7 @@ int get_options(struct config_t* config, int argc, char* const* argv)
         {"nbchannels",  required_argument,  0, 'n'},
         {"format",      required_argument,  0, 'f'},
         {"channels",    required_argument,  0, 'c'},
+        {"appname", required_argument, 0, 'a'},
         {"loglevel",    required_argument,  0, 'l'},
         {"help",        no_argument,        0, 'h'},
         {0,             0,                  0,  0 }
@@ -100,7 +101,7 @@ int get_options(struct config_t* config, int argc, char* const* argv)
     /* yes, I assume config is not 0 */
     while (1)
     {
-        c = getopt_long(argc, argv, "i:p:s:b:d:r:n:f:c:l:h", options, 0);
+        c = getopt_long(argc, argv, "i:p:s:b:d:r:n:f:c:a:l:h", options, 0);
         if (c == -1)
             break;
 
@@ -142,6 +143,10 @@ int get_options(struct config_t* config, int argc, char* const* argv)
                 ret = audio_parse_map_config(&config->map, optarg);
                 break;
 
+            case 'a':
+                strncpy(config->audio.application_name, optarg, AUDIO_DEVICE_NAME_SIZE - 1);
+                break;
+
             case 'l':
                 logger_set_output_level(atoi(optarg));
                 break;
@@ -156,6 +161,12 @@ int get_options(struct config_t* config, int argc, char* const* argv)
         {
             return ret;
         }
+    }
+
+    /** set default application name if not provided */
+    if (config->audio.application_name[0] == 0)
+    {
+        strncpy(config->audio.application_name, "vban", AUDIO_DEVICE_NAME_SIZE - 1);
     }
 
     /** check if we got all arguments */

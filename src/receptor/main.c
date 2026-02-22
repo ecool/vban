@@ -61,6 +61,7 @@ void usage()
     printf("-c, --channels=LIST     : channels from the stream to use. LIST is of form x,y,z,... default is to forward the stream as it is\n");
     printf("-o, --output=NAME       : DEPRECATED. please use -d\n");
     printf("-d, --device=NAME       : Audio device name. This is file name for file backend, server name for jack backend, device for alsa, stream_name for pulseaudio.\n");
+    printf("-n, --name=NAME         : Application name (for pulseaudio/pipewire node name). default is 'vban'\n");
     printf("-l, --loglevel=LEVEL    : Log level, from 0 (FATAL) to 4 (DEBUG). default is 1 (ERROR)\n");
     printf("-h, --help              : display this message\n\n");
 }
@@ -122,6 +123,7 @@ int get_options(struct config_t* config, int argc, char* const* argv)
         {"channels",    required_argument,  0, 'c'},
         {"output",      required_argument,  0, 'o'},
         {"device",      required_argument,  0, 'd'},
+        {"name", required_argument, 0, 'n'},
         {"loglevel",    required_argument,  0, 'l'},
         {"help",        no_argument,        0, 'h'},
         {0,             0,                  0,  0 }
@@ -130,7 +132,7 @@ int get_options(struct config_t* config, int argc, char* const* argv)
     /* yes, I assume config is not 0 */
     while (1)
     {
-        c = getopt_long(argc, argv, "i:p:s:b:q:c:o:d:l:h", options, 0);
+        c = getopt_long(argc, argv, "i:p:s:b:q:c:o:d:n:l:h", options, 0);
         if (c == -1)
             break;
 
@@ -165,6 +167,10 @@ int get_options(struct config_t* config, int argc, char* const* argv)
                 strncpy(config->audio.device_name, optarg, AUDIO_DEVICE_NAME_SIZE-1);
                 break;
 
+            case 'n':
+                strncpy(config->audio.application_name, optarg, AUDIO_DEVICE_NAME_SIZE - 1);
+                break;
+
             case 'l':
                 logger_set_output_level(atoi(optarg));
                 break;
@@ -184,6 +190,12 @@ int get_options(struct config_t* config, int argc, char* const* argv)
     config->audio.direction     = AUDIO_OUT;
     config->audio.buffer_size   = computeSize(quality);
     config->socket.direction    = SOCKET_IN;
+
+    /** set default application name if not provided */
+    if (config->audio.application_name[0] == 0)
+    {
+        strncpy(config->audio.application_name, "vban", AUDIO_DEVICE_NAME_SIZE - 1);
+    }
 
     /** check if we got all arguments */
     if ((config->socket.ip_address[0] == 0)

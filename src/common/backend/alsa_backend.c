@@ -11,7 +11,8 @@ struct alsa_backend_t
     size_t                  frame_size;
 };
 
-static int alsa_open(audio_backend_handle_t handle, char const* output_name, enum audio_direction direction, size_t buffer_size, struct stream_config_t const* config);
+static int alsa_open(audio_backend_handle_t handle, const char* output_name, const char* application_name,
+                     enum audio_direction direction, size_t buffer_size, const struct stream_config_t* config);
 static int alsa_close(audio_backend_handle_t handle);
 static int alsa_write(audio_backend_handle_t handle, char const* data, size_t size);
 static int alsa_read(audio_backend_handle_t handle, char* data, size_t size);
@@ -68,10 +69,11 @@ int alsa_backend_init(audio_backend_handle_t* handle)
     *handle = (audio_backend_handle_t)alsa_backend;
 
     return 0;
-    
+
 }
 
-int alsa_open(audio_backend_handle_t handle, char const* output_name, enum audio_direction direction, size_t buffer_size, struct stream_config_t const* config)
+int alsa_open(audio_backend_handle_t handle, const char* output_name, const char* application_name,
+              enum audio_direction direction, size_t buffer_size, const struct stream_config_t* config)
 {
     int ret;
     struct alsa_backend_t* const alsa_backend = (struct alsa_backend_t*)handle;
@@ -86,8 +88,8 @@ int alsa_open(audio_backend_handle_t handle, char const* output_name, enum audio
     alsa_backend->frame_size = VBanBitResolutionSize[config->bit_fmt] * config->nb_channels;
     frame_nb = buffer_size / alsa_backend->frame_size;
 
-    ret = snd_pcm_open(&alsa_backend->alsa_handle, (output_name[0] == '\0') ? ALSA_DEVICE_NAME_DEFAULT : output_name, 
-        (direction == AUDIO_OUT) ? SND_PCM_STREAM_PLAYBACK : SND_PCM_STREAM_CAPTURE, 0);
+    ret = snd_pcm_open(&alsa_backend->alsa_handle, (output_name[0] == '\0') ? ALSA_DEVICE_NAME_DEFAULT : output_name,
+                       (direction == AUDIO_OUT) ? SND_PCM_STREAM_PLAYBACK : SND_PCM_STREAM_CAPTURE, 0);
     if (ret < 0)
     {
         logger_log(LOG_FATAL, "%s: open error: %s", __func__, snd_strerror(ret));
@@ -165,7 +167,7 @@ int alsa_write(audio_backend_handle_t handle, char const* data, size_t size)
     }
 
     nb_frame = size / alsa_backend->frame_size;
-    
+
     ret = snd_pcm_writei(alsa_backend->alsa_handle, data, nb_frame);
     if (ret < 0)
     {
