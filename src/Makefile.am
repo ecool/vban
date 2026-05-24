@@ -2,10 +2,10 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
 AM_CFLAGS = -std=c99 -pedantic -Wall -Wno-multichar -O2 -I.
-AM_LDFLAGS = 
+AM_LDFLAGS =
 
 if ALSA
-AM_LDFLAGS += -lasound 
+AM_LDFLAGS += -lasound
 AM_CFLAGS += -DALSA
 endif
 
@@ -17,6 +17,11 @@ endif
 if JACK
 AM_LDFLAGS += -ljack
 AM_CFLAGS += -DJACK
+endif
+
+if PIPEWIRE
+AM_LDFLAGS += $(PIPEWIRE_LIBS)
+AM_CFLAGS += -DPIPEWIRE $(PIPEWIRE_CFLAGS)
 endif
 
 bin_PROGRAMS = vban_receptor vban_emitter vban_sendtext
@@ -39,8 +44,8 @@ vban_sendtext_SOURCES = sendtext/main.c common/version.h \
 						vban/vban.h common/logger.h common/logger.c
 
 if ALSA
-vban_receptor_SOURCES += common/backend/alsa_backend.h common/backend/alsa_backend.c 
-vban_emitter_SOURCES += common/backend/alsa_backend.h common/backend/alsa_backend.c 
+vban_receptor_SOURCES += common/backend/alsa_backend.h common/backend/alsa_backend.c
+vban_emitter_SOURCES += common/backend/alsa_backend.h common/backend/alsa_backend.c
 endif
 
 if PULSEAUDIO
@@ -51,4 +56,9 @@ endif
 if JACK
 vban_receptor_SOURCES += common/backend/jack_backend.h common/backend/jack_backend.c
 vban_emitter_SOURCES += common/backend/jack_backend.h common/backend/jack_backend.c
+endif
+
+if PIPEWIRE
+vban_receptor_SOURCES += common/backend/pipewire_backend.h common/backend/pipewire_backend.c
+vban_emitter_SOURCES += common/backend/pipewire_backend.h common/backend/pipewire_backend.c
 endif

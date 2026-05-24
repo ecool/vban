@@ -48,7 +48,7 @@ add_executable(vban_sendtext
     vban/vban.h
     common/logger.h
     common/logger.c)
-    
+
 include(GNUInstallDirs)
 
 foreach(exe vban_receptor vban_emitter vban_sendtext)
@@ -70,7 +70,12 @@ foreach(exe vban_receptor vban_emitter vban_sendtext)
         target_include_directories(${exe} PRIVATE ${JACK_INCLUDE_DIR})
         target_link_libraries(     ${exe} PRIVATE ${JACK_LIBRARIES})
     endif()
-    
+    if (WITH_PIPEWIRE)
+        target_compile_definitions(${exe} PRIVATE PIPEWIRE)
+        target_include_directories(${exe} PRIVATE ${PIPEWIRE_INCLUDE_DIRS})
+        target_link_libraries(${exe} PRIVATE ${PIPEWIRE_LIBRARIES})
+    endif ()
+
     if(WIN32)
         # Windows has no sys/socket.h, need to use Winsock2.h and link to lib
         target_link_libraries(     ${exe} PRIVATE ws2_32)
@@ -105,3 +110,12 @@ if(WITH_JACK)
         common/backend/jack_backend.h
         common/backend/jack_backend.c)
 endif()
+
+if (WITH_PIPEWIRE)
+    target_sources(vban_receptor PRIVATE
+            common/backend/pipewire_backend.h
+            common/backend/pipewire_backend.c)
+    target_sources(vban_emitter PRIVATE
+            common/backend/pipewire_backend.h
+            common/backend/pipewire_backend.c)
+endif ()

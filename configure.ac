@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.69])
-AC_INIT([vban_receptor], [v0.8.6], [quiniouben@yahoo.fr])
+AC_PREREQ([2.72])
+AC_INIT([vban_receptor],[v0.8.6],[quiniouben@yahoo.fr])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/vban/vban.h])
 
@@ -72,4 +72,20 @@ AM_COND_IF([JACK],
 	[:]
 )
 
-AC_OUTPUT(Makefile src/Makefile)
+# Manage conditional pipewire enabling
+AC_ARG_ENABLE([pipewire],
+[  --enable-pipewire    Turn on pipewire backend ],
+[case "${enableval}" in
+  yes) pipewire=true ;;
+  no)  pipewire=false ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-pipewire. default is no]) ;;
+esac],[pipewire=false])
+AM_CONDITIONAL([PIPEWIRE], [test x$pipewire = xtrue])
+
+AM_COND_IF([PIPEWIRE],
+	[PKG_CHECK_MODULES([PIPEWIRE], [libpipewire-0.3], [], [AC_MSG_ERROR(Missing pipewire library)])],
+	[:]
+)
+
+AC_CONFIG_FILES([Makefile src/Makefile])
+AC_OUTPUT

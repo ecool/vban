@@ -15,6 +15,9 @@
 #if JACK
 #include "jack_backend.h"
 #endif
+#if PIPEWIRE
+#include "pipewire_backend.h"
+#endif
 
 #define HELP_TEXT_LEN   2048
 
@@ -24,7 +27,7 @@ struct backend_list_item_t
     audio_backend_init_f    init_function;
 };
 
-static struct backend_list_item_t const backend_list[] = 
+static const struct backend_list_item_t backend_list[] =
 {
     #if ALSA
     { ALSA_BACKEND_NAME, alsa_backend_init },
@@ -34,6 +37,9 @@ static struct backend_list_item_t const backend_list[] =
     #endif
     #if JACK
     { JACK_BACKEND_NAME, jack_backend_init },
+#endif
+#if PIPEWIRE
+    {PIPEWIRE_BACKEND_NAME, pipewire_backend_init},
     #endif
     { PIPE_BACKEND_NAME, pipe_backend_init },
     { FILE_BACKEND_NAME, file_backend_init }
@@ -76,7 +82,6 @@ char const* audio_backend_get_help()
     }
 
     offset += snprintf(help_text + offset, HELP_TEXT_LEN - offset, ". default is %s.", backend_list[0].name);
-    
+
     return help_text;
 }
-
